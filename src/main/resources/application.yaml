@@ -1,0 +1,7 @@
+email:
+  username: rameshkrch
+  password: ivig rjdd ngcp vygn
+  host: imap.gmail.com
+  port: 993
+  mailbox: INBOX
+  pollRate: 30000
