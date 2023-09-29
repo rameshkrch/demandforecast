@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RestController
-@RequestMapping(path = "/email-service", produces = "application/json")
+@RequestMapping(path = "/demand-service", produces = "application/json")
 public class DemandRestController {
 
     @Autowired

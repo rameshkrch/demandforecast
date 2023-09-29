@@ -14,6 +14,7 @@ import org.springframework.integration.support.AbstractIntegrationMessageBuilder
 import org.springframework.integration.support.MessageBuilder;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
 
 @Slf4j
@@ -34,7 +35,7 @@ public class EmailTransformer extends AbstractMailMessageTransformer<Demand> {
       Date receiveDate = mailMessage.getReceivedDate();
 
       return parseEmail(email, subject, content, receiveDate);
-    } catch (MessagingException | IOException e) {
+    } catch (MessagingException | IOException | ParseException e) {
       log.error("MessagingException: {0}", e);
     }
 
@@ -86,7 +87,7 @@ public class EmailTransformer extends AbstractMailMessageTransformer<Demand> {
     return result;
   }
 
-  private Demand parseEmail(String senderEmailAddress, String subject, String content, Date receiveDate) {
+  private Demand parseEmail(String senderEmailAddress, String subject, String content, Date receiveDate) throws ParseException {
     return new Demand(senderEmailAddress, subject, content, receiveDate);
   }
 }

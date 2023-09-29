@@ -7,6 +7,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.regex.Pattern;
@@ -28,8 +30,10 @@ public class Demand implements Serializable {
   private String customer;
   private boolean PSU;
   private String jobCategory;
+  private String status;
 
-  public Demand(String email, String subject, String content, Date receiveDate) {
+  public Demand(String email, String subject, String content, Date receiveDate)
+      throws ParseException {
     this.email = email;
     this.subject = subject;
     this.content = content;
@@ -39,6 +43,11 @@ public class Demand implements Serializable {
     this.skills = getSkills(content);
     this.customer = getCustomer(content);
     this.jobCategory = getJobCategory(content);
+    this.status = getStatus(receiveDate);
+  }
+
+  private String getStatus(Date receiveDate) {
+    return receiveDate.compareTo(getDeadline()) <= 0 ? "Open" : "Closed";
   }
 
   private String getJobCategory(String content) {
@@ -70,8 +79,8 @@ public class Demand implements Serializable {
     ArrayList<String> skillsList = new ArrayList<>();
     for (Skills skills : Skills.values()) {
       if (Pattern.compile(Pattern.quote(String.valueOf(skills)), Pattern.CASE_INSENSITIVE)
-              .matcher(content)
-              .find()) {
+          .matcher(content)
+          .find()) {
         skillsList.add(skills.name());
       }
     }
@@ -81,9 +90,21 @@ public class Demand implements Serializable {
     return skillsList;
   }
 
-  public Date getDeadline(String content, Date receiveDate) {
-    // TO-DO
-    return receiveDate;
+  public Date getDeadline(String content, Date receiveDate) throws ParseException {
+    /*    String regex = "Deadline: (\\d{2}-\\d{2}-\\d{4})";
+    return Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(content).find()
+           ? new SimpleDateFormat("dd-MM-yyyy")
+               .parse(Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(content).group(1))
+           : Date.from(
+               (receiveDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().plusDays(3))
+                   .atStartOfDay()
+                   .atZone(ZoneId.systemDefault())
+                   .toInstant());
+       */
+    return Date.from(
+        (receiveDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().plusDays(3))
+            .atStartOfDay()
+            .atZone(ZoneId.systemDefault())
+            .toInstant());
   }
-
 }
