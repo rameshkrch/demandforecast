@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class DemandServiceImpl implements DemandService {
@@ -29,14 +28,14 @@ public class DemandServiceImpl implements DemandService {
     @Override
     public List<Demand> getDemandsByCustomer(String customer) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("customer").ne(null).is(customer)).with(Sort.by(Sort.Direction.ASC, "deadline"));
+        query.addCriteria(Criteria.where("customer").is(customer)).with(Sort.by(Sort.Direction.ASC, "deadline"));
         return mongoTemplate.find(query, Demand.class);
     }
 
     @Override
-    public List<Demand> getDemandsBySkills(List<Objects> skills) {
+    public List<Demand> getDemandsBySkills(String[] skills) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("skills").ne(null).in(skills)).with(Sort.by(Sort.Direction.ASC, "deadline"));
+        query.addCriteria(Criteria.where("skills").in((Object) skills)).with(Sort.by(Sort.Direction.ASC, "deadline"));
         return mongoTemplate.find(query, Demand.class);
     }
 

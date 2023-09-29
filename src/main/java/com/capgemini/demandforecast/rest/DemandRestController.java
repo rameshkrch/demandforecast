@@ -29,11 +29,11 @@ public class DemandRestController {
     }
 
     @GetMapping("/demands/skills/{skills}")
-    public List<Demand> getDemandsBySkills(@PathVariable List<Objects> skills) {
+    public List<Demand> getDemandsBySkills(@PathVariable String[] skills) {
         return  demandService.getDemandsBySkills(skills);
     }
 
-    @GetMapping("/demands/isPSU/{value}")
+    @GetMapping("/demands/isPSU/{isPSU}")
     public List<Demand> getDemandsPSUOnly(@PathVariable boolean isPSU) {
         return  demandService.getDemandsPSUOnly(isPSU);
     }
