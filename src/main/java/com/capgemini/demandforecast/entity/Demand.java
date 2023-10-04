@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Data
@@ -31,19 +32,26 @@ public class Demand implements Serializable {
   private boolean PSU;
   private String jobCategory;
   private String status;
+  private List<String> attachments;
 
-  public Demand(String email, String subject, String content, Date receiveDate)
+  public Demand(String email, String subject, String content, Date receiveDate, List<String> attachments)
       throws ParseException {
     this.email = email;
     this.subject = subject;
     this.content = content;
     this.receiveDate = receiveDate;
+    this.attachments = attachments;
 
     this.deadline = getDeadline(content, receiveDate);
     this.skills = getSkills(content);
     this.customer = getCustomer(content);
     this.jobCategory = getJobCategory(content);
     this.status = getStatus(receiveDate);
+    this.hasAttachment = getHasAttachment(attachments);
+  }
+
+  private boolean getHasAttachment(List<String> attachments) {
+    return !attachments.isEmpty();
   }
 
   private String getStatus(Date receiveDate) {

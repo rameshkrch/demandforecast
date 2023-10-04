@@ -19,7 +19,6 @@ import java.util.Arrays;
 @Configuration
 public class MailIntegrationConfig {
 
-  //  private static final String SUBJECT_KEYWORDS = "DEMAND";
   private static final String SENDER = "RAMESHKRCH@GMAIL.COM";
 
   @Bean
@@ -36,8 +35,6 @@ public class MailIntegrationConfig {
             (Message) -> {
               boolean validSender = false;
               try {
-                //                containsKeyword =
-                // Message.getSubject().toUpperCase().contains(SUBJECT_KEYWORDS);
                 validSender =
                     Arrays.stream(Message.getFrom())
                         .anyMatch(i -> i.toString().toUpperCase().contains(SENDER));

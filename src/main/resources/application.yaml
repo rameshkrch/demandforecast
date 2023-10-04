@@ -5,3 +5,4 @@ email:
   port: 993
   mailbox: INBOX
   pollRate: 30000
+  sender: RAMESHKRCH@GMAIL.COM

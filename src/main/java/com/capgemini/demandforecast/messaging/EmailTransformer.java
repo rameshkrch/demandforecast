@@ -1,11 +1,10 @@
 package com.capgemini.demandforecast.messaging;
 
 import com.capgemini.demandforecast.entity.Demand;
-import jakarta.mail.BodyPart;
-import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
+import jakarta.mail.*;
 import jakarta.mail.internet.ContentType;
 import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMultipart;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -13,12 +12,17 @@ import org.springframework.integration.mail.transformer.AbstractMailMessageTrans
 import org.springframework.integration.support.AbstractIntegrationMessageBuilder;
 import org.springframework.integration.support.MessageBuilder;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 public class EmailTransformer extends AbstractMailMessageTransformer<Demand> {
+
+  private static final String DIR = "./";
 
   @Override
   protected AbstractIntegrationMessageBuilder<Demand> doTransform(Message mailMessage) {
@@ -33,21 +37,40 @@ public class EmailTransformer extends AbstractMailMessageTransformer<Demand> {
       String email = ((InternetAddress) mailMessage.getFrom()[0]).getAddress();
       String content = getTextFromMessage(mailMessage);
       Date receiveDate = mailMessage.getReceivedDate();
+      List<String> attachments = downloadAttachments(mailMessage);
 
-      return parseEmail(email, subject, content, receiveDate);
+      return parseEmail(email, subject, content, receiveDate, attachments);
     } catch (MessagingException | IOException | ParseException e) {
       log.error("MessagingException: {0}", e);
     }
+    return null;
+  }
 
+  private List<String> downloadAttachments(Message mailMessage)
+      throws MessagingException, IOException {
+    if (mailMessage.getContentType().contains("multipart")) {
+      List<String> downloadedAttachments = new ArrayList<>();
+      Multipart multipart = (Multipart) mailMessage.getContent();
+      for (int i = 0; i < multipart.getCount(); i++) {
+        MimeBodyPart part = (MimeBodyPart) multipart.getBodyPart(i);
+        if ( Part.ATTACHMENT.equalsIgnoreCase(part.getDisposition())) {
+          String file = part.getFileName();
+          part.saveFile(DIR + File.separator + part.getFileName());
+          downloadedAttachments.add(file);
+        }
+      }
+      return downloadedAttachments;
+    }
     return null;
   }
 
   private String getTextFromMessage(Message message) throws IOException, MessagingException {
     String result = "";
+    Object content = message.getContent();
     if (message.isMimeType("text/plain")) {
       result = message.getContent().toString();
     } else if (message.isMimeType("multipart/*")) {
-      MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
+      MimeMultipart mimeMultipart = (MimeMultipart) content;
       result = getTextFromMimeMultipart(mimeMultipart);
     }
     return result;
@@ -83,11 +106,10 @@ public class EmailTransformer extends AbstractMailMessageTransformer<Demand> {
     } else if (bodyPart.getContent() instanceof MimeMultipart) {
       result = getTextFromMimeMultipart((MimeMultipart) bodyPart.getContent());
     }
-
     return result;
   }
 
-  private Demand parseEmail(String senderEmailAddress, String subject, String content, Date receiveDate) throws ParseException {
-    return new Demand(senderEmailAddress, subject, content, receiveDate);
+  private Demand parseEmail(String senderEmailAddress, String subject, String content, Date receiveDate, List<String> attachments) throws ParseException {
+    return new Demand(senderEmailAddress, subject, content, receiveDate, attachments);
   }
 }
