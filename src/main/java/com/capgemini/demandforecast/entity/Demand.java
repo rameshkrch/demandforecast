@@ -1,6 +1,6 @@
 package com.capgemini.demandforecast.entity;
 
-import com.capgemini.demandforecast.messaging.EmailTransformer;
+import com.capgemini.demandforecast.messaging.EmailToDemandMapper;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -33,7 +33,7 @@ public class Demand implements Serializable {
   private String status;
   private List<String> attachments;
 
-  private EmailTransformer emailtransformer;
+  private EmailToDemandMapper emailtodemandmapper;
 
   public Demand(String email, String subject, String content, Date receiveDate, List<String> attachments)
       throws ParseException {
@@ -43,12 +43,12 @@ public class Demand implements Serializable {
     this.receiveDate = receiveDate;
     this.attachments = attachments;
 
-    this.deadline = emailtransformer.getDeadline(receiveDate);
-    this.skills = emailtransformer.getSkills(content);
-    this.customer = emailtransformer.getCustomer(content,this);
-    this.jobCategory = emailtransformer.getJobCategory(content);
-    this.status = emailtransformer.getStatus(receiveDate);
-    this.hasAttachment = emailtransformer.getHasAttachment(attachments);
+    this.deadline = emailtodemandmapper.getDeadline(receiveDate);
+    this.skills = emailtodemandmapper.getSkills(content);
+    this.customer = emailtodemandmapper.getCustomer(content,this);
+    this.jobCategory = emailtodemandmapper.getJobCategory(content);
+    this.status = emailtodemandmapper.getStatus(receiveDate);
+    this.hasAttachment = emailtodemandmapper.getHasAttachment(attachments);
   }
 
   public void setPSU(boolean PSU) {
